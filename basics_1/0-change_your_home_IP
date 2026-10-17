@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 # Modifies /etc/hosts so that localhost resolves to 127.0.0.2 and facebook.com resolves to 8.8.8.8
-sudo awk '!/\<localhost\>/ && !\<facebook.com\>/' /etc/hosts | sudo tee /etc/hosts.new > /dev/null
-echo '127.0.0.2 localhost' | sudo tee -a /etc/hosts.new > /dev/null
-echo '8.8.8.8 facebook.com' | sudo tee -a /etc/hosts.new > /dev/null
-sudo mv /etc/hosts.new /etc/hosts
+sudo python3 -c "with open('/etc/hosts', 'r') as f:
+    lines = f.readlines()
+new_lines = []
+for line in lines:
+    if 'localhost' in line:
+        new_lines.append('127.0.0.2 localhost\n')
+    elif 'facebook.com' in line:
+        continue
+    else:
+        new_lines.append(line)
+if not any('127.0.0.2' in l for l in new_lines):
+    new_lines.append('127.0.0.2 localhost\n')
+new_lines.append('8.8.8.8 facebook.com\n')
+with open('/etc/hosts', 'w') as f:
+    f.writelines(new_lines)"
